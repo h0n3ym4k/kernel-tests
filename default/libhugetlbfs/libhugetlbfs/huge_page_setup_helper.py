@@ -262,7 +262,7 @@ if debug == False:
         try:
             sysctlConfLines = open(sysctlConf).readlines()
             os.rename(sysctlConf, sysctlConf + ".backup")
-            print(("Saved original %s as %s.backup" % (sysctlConf, sysctlConf)))
+            print("Saved original %s as %s.backup" % (sysctlConf, sysctlConf))
         except:
             pass
 
@@ -297,7 +297,7 @@ if debug == False:
         try:
             limitsConfLines = open(limitsConf).readlines()
             os.rename(limitsConf, limitsConf + ".backup")
-            print(("Saved original %s as %s.backup" % (limitsConf, limitsConf)))
+            print("Saved original %s as %s.backup" % (limitsConf, limitsConf))
         except:
             pass
 
