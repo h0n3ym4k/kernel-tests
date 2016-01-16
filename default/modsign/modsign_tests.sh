@@ -7,8 +7,8 @@ modsign_check_modules()
 	
 	# Grab a module to mess around with.  We'll pick one that is fairly
 	# stand-alone and rarely used.
-	cp /lib/modules/`uname -r`/kernel/fs/minix/minix.ko .
-
+	cp /lib/modules/`uname -r`/kernel/fs/minix/minix.ko.xz .
+	xz -d minix.ko.xz
 	# Make sure we have the signed module marker
 	cat ./minix.ko | strings | grep "~Module signature appended~" &> /dev/null
 	if [ "$?" -ne "0" ]
@@ -59,7 +59,8 @@ modsign_unsigned()
 {
 	# Grab a module to mess around with.  We'll pick one that is fairly
 	# stand-alone and rarely used.
-	cp /lib/modules/`uname -r`/kernel/fs/minix/minix.ko .
+	cp /lib/modules/`uname -r`/kernel/fs/minix/minix.ko.xz .
+	xz -d minix.ko.xz
 	strip -g ./minix.ko
 	
 	# Make sure it isn't already loaded
@@ -109,13 +110,13 @@ modsign_third_party()
 modsign=0
 if [ -f /proc/keys ]
 then
-	cat /proc/keys | grep module_sign &> /dev/null
+	cat /proc/keys | grep system_keyring &> /dev/null
 	if [ $? -ne "0" ]
 	then
 		echo Module signing not enabled
 		exit 3
 	fi
-	keyring=`cat /proc/keys | grep module_sign | cut -f 1 -d " "`
+	keyring=`cat /proc/keys | grep system_keyring | cut -f 1 -d " "`
 	keyctl list 0x${keyring} | grep "Fedora kernel signing key" &> /dev/null
 	if [ $? == "0" ]
 	then
