@@ -7,6 +7,9 @@ submit=none
 # submit=anonymous
 # submit=authenticated
 
+# Check duplication tests
+# disable_retest=y
+
 # Check Signature for Secure Boot
 # checksig=y
 # validsig="Fedora Secure Boot Signer"

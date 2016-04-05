@@ -11,6 +11,7 @@ cleanrun=PASS
 failedtests=None
 commit=n
 commithook=/usr/bin/true
+disable_retest=n
 
 if [ -f ./.config ]; then
 	source ./.config
@@ -34,6 +35,19 @@ unset MALLOC_PERTURB_
 
 if [ ! -d "$logdir" ] ; then
 	mkdir $logdir
+fi
+
+if [ "$disable_retest" == "y" ]; then
+	# Check if wanted test has been executed with current kernel version
+	for file in $(find $logdir -name \*.log.txt); do
+		version_tested=$(cat $file | sed -n 3p | cut -d ' ' -f 2)
+		test_executed=$(cat $file | sed -n 2p | cut -d ' ' -f 3)
+
+		if [ "$version_tested" == "$kver" -a "$test_executed" == "$testset" ]; then
+			echo "The current kernel was already tested with this test, abort."
+			exit 0
+		fi
+	done
 fi
 
 args=y
