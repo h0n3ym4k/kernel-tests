@@ -3,7 +3,7 @@
 # Licensed under the terms of the GNU GPL License version 2
 
 install_dep() {
-	yum install -y $1;
+	dnf install -y $1;
 	rc=$?;
 	if [ $rc -ne 0 ]
 	then
