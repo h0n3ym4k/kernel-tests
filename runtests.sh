@@ -9,9 +9,11 @@ verbose=n
 testset=default
 cleanrun=PASS
 failedtests=None
+warntests=None
 commit=n
 commithook=/usr/bin/true
 disable_retest=n
+thirdparty=n
 
 if [ -f ./.config ]; then
 	source ./.config
@@ -104,6 +106,11 @@ if  [ "$checksig" == "y" ]; then
     dirlist="secureboot $dirlist"
 fi
 
+# Test Third Party Modules?
+if  [ "$thirdparty" == "y" ]; then
+    dirlist="$dirlist thirdparty"
+fi
+
 #Basic logfile headers
 echo "Date: $(date)" > $logfile
 echo "Test set: $testset" >> $logfile
@@ -142,6 +149,9 @@ do
 		3)
 			result=SKIP
 			;;
+		4)
+			result=WARN
+			;;
 		*)
 			result=FAIL
 		esac
@@ -154,12 +164,22 @@ do
 				failedtests="$failedtests $testname"
 			fi
 		fi
+		if [ "$result" == "WARN" ]; then
+			if [ "$cleanrun" == "PASS" ]; then
+				cleanrun=WARN
+			fi
+			if [ "$warntests" == "None" ]; then
+				warntests="$testname"
+			else
+				warntests="$warntests $testname"
+			fi
+		fi
 		popd &>/dev/null
 	done
 done
 
 # Fix up logfile headers
-sed -i "s,RESULTHOLDER,$cleanrun\nFailed Tests: $failedtests,g" $logfile
+sed -i "s,RESULTHOLDER,$cleanrun\nFailed Tests: $failedtests\nWarned Tests: $warntests,g" $logfile
 printf "\n%-65s%-8s\n" "Test suite complete" "$cleanrun"
 
 if [ "$commit" == "y" ]; then

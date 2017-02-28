@@ -30,17 +30,24 @@ It is expected that a basic set of packages are installed to run these tests.
 This includes glibc-devel and gcc.  If those packages are not installed, please
 install them before running the test suite.
 
+If you wish to test to ensure that 3rd party modules build against the current
+kernel, you can add a 'thirdparty=y' line to your .config.  This will run any
+tests in the thirdparty directory as well. Because these are not upstream
+drivers, a failure of these tests will return 4, the test suite will pass but
+with warning.
+
 === Writing Tests ===
 
 While a test can actually be any sort of executable, it is expected that
 these tests will follow certain basic criteria.  This helps to ensure that
 the test suite is easy to interpret.  The output is controlled by the
-master script, and output is in the form of pass, fail, or skipped. All
-other output is redirected to the log file.
+master script, and output is in the form of pass, fail, warn, or skipped.
+All other output is redirected to the log file.
 
 Return Codes:
 0 - A successful test completion
 3 - Test skipped 
+4 - Warn (this is reserved for things like out of tree modules)
 Anything else is interpreted as fail and the user is asked to check the log
 for more details.
 
@@ -84,7 +91,6 @@ any necessary source, checking for any specific dependencies, and skipping
 if they are not met. At the completion of the test set, a "Test suite complete"
 is printed with a pass/fail result, and the appropriate return code.
 
-
 Potential for harm:
 It is expected that these test will be run on real systems.  Any tests
 which have increased risk of data loss or ill effects should be specified
@@ -98,3 +104,11 @@ As a large number of tests are written as simple shell scripts, and many of
 these tests need to perform a series of the same functions, a "library" has
 been created to allow for reuse. source the testutil file as needed.  Any
 functions added to testutil should be clearly commented with purpose and use.
+
+Thirdparty:
+This directory should contain tests for out of tree drivers etc. These tests
+should never return anything other than pass, skip, or warn.  While it is
+handy to know if these things work with the current kernel, as out of tree
+modules, they are not necessarily in-step with upstream development.  To
+return a fail on these tests would be incorrect, but a warn does give a heads
+up so that the upstream for those modules can be contacted.

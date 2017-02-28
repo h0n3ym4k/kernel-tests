@@ -14,6 +14,9 @@ submit=none
 # checksig=y
 # validsig="Fedora Secure Boot Signer"
 
+# Test 3rd Party Modules
+# thirdparty=y
+
 # FAS User credentials.
 # Storing your FAS password here is technically possible, but not advisable
 # for security seasons
