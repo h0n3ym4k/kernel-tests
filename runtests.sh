@@ -190,6 +190,16 @@ else
 	printf "Submit your results to: https://apps.fedoraproject.org/kerneltest/\n"
 fi
 
+echo "The following information is not submitted with your log"
+echo "it is for informational purposes only"
+
+if [ -f /usr/bin/pesign ]; then
+	echo "Checking for kernel signature:"
+	/usr/bin/pesign -i /boot/vmlinuz-$kver -S | grep "common name"
+fi
+
+echo "Vulnerability status:"
+grep . /sys/devices/system/cpu/vulnerabilities/*
 
 if [ "$cleanrun" == "FAIL" ]; then
 	exit 1
