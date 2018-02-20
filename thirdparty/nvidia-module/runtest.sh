@@ -12,6 +12,7 @@ fi
 # Ensure we have curl and kernel-devel
 check_dep curl
 check_dep kernel-devel
+check_dep elfutils-libelf-devel
 
 baseurl='http://http.download.nvidia.com/XFree86/Linux-x86_64'
 latest=`curl $baseurl/latest.txt | cut -d ' ' -f1`
