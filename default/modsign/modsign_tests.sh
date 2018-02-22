@@ -87,7 +87,7 @@ modsign_unsigned()
 	else
 		if [ ${loaded} -ne "0" ]
 		then
-			echo "Successfully enforced signed module"
+			echo "Unsigned module load failed in enforcing mode"
 		else
 			echo "Unsigned module loaded in enforcing mode"
 			rmmod minix
@@ -98,7 +98,7 @@ modsign_unsigned()
 	# cleanup
 	rm ./minix.ko
 
-	return ${pass}
+	return ${fail}
 }			
 
 modsign_third_party()
@@ -138,6 +138,14 @@ fi
 # Are we in enforcing?
 
 enforcing=`cat /sys/module/module/parameters/sig_enforce`
+
+# SecureBoot should enforce requirement of valid module signatures regardless of sig_enforce.
+# Check that SecureBoot is enabled in EFI variables
+secureboot=`od -An -t u1 /sys/firmware/efi/efivars/SecureBoot-* | awk ' { print $5 } '`
+if [ "$secureboot" == "1" ]
+then
+        enforcing="Y"
+fi
 
 # Make sure we actually have signed modules and that they load
 modsign_check_modules
