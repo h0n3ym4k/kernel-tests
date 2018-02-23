@@ -141,7 +141,7 @@ enforcing=`cat /sys/module/module/parameters/sig_enforce`
 
 # SecureBoot should enforce requirement of valid module signatures regardless of sig_enforce.
 # Check that SecureBoot is enabled in EFI variables
-secureboot=`od -An -t u1 /sys/firmware/efi/efivars/SecureBoot-* | awk ' { print $5 } '`
+secureboot=`od -An -t u1 /sys/firmware/efi/efivars/SecureBoot-* 2>/dev/null | awk ' { print $5 } '`
 if [ "$secureboot" == "1" ]
 then
         enforcing="Y"
