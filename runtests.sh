@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Licensed under the terms of the GNU GPL License version 2
+# Licensed under the terms of the GNU GPL License version 2.
 
 date=$(date +%s)
 logdir=$(pwd)/logs
@@ -18,7 +18,7 @@ thirdparty=n
 if [ -f ./.config ]; then
 	source ./.config
 else
-	echo "No .config file found. You can cp config.example .config and edit as needed for easier log submission"
+	echo "No .config file found. You can cp config.example .config and edit as needed for easier log submission."
 fi
 
 kver=$(uname -r)
@@ -26,12 +26,12 @@ release=$(cat /etc/redhat-release)
 
 # Check for pre-requisites.
 if [ ! -f /usr/bin/gcc ]; then
-	echo Fedora kernel test suite needs gcc.
+	echo " Could not locate gcc. The Fedora kernel test suite requires gcc."
 	exit
 fi
 
-# unset MALLOC_CHECK_ and MALLOC_PERTURB_.  Some tests might not work well
-# with those active (like libhugetlbfs)
+# Unset MALLOC_CHECK_ and MALLOC_PERTURB_. Some tests might not work
+# well with those active (e.g. libhugetlbfs).
 unset MALLOC_CHECK_
 unset MALLOC_PERTURB_
 
@@ -40,7 +40,8 @@ if [ ! -d "$logdir" ] ; then
 fi
 
 if [ "$disable_retest" == "y" ]; then
-	# Check if wanted test has been executed with current kernel version
+	# Check if wanted test has been executed with current kernel
+        # version.
 	for file in $(find $logdir -name \*.log.txt); do
 		version_tested=$(cat $file | sed -n 3p | cut -d ' ' -f 2)
 		test_executed=$(cat $file | sed -n 2p | cut -d ' ' -f 3)
@@ -58,7 +59,7 @@ while [ $args = y ]
 do
         case "$1" in
 	-v)
-		#TO DO: Implement verbose behavior
+		#TO DO: Implement verbose behavior.
 		verbose=y
 		shift 1
 		;;
@@ -82,8 +83,8 @@ stress)
 	dirlist="minimal default stress"
 	;;
 destructive)
-	echo "You have specified the destructive test set"
-	echo "This test may cause damage to your system"
+	echo "You have specified the destructive test set."
+	echo "This test may cause damage to your system."
 	echo "Are you sure that you wish to continue?"
 	read continue
 	if [ $continue == 'y' ] ; then
@@ -97,7 +98,7 @@ performance)
 	dirlist="performance"
 	;;
 *)
-	echo "supported test sets are minimal, default, stress, destructive or performance"
+	echo "Supported test sets are minimal, default, stress, destructive or performance."
 	exit 1
 esac
 
@@ -111,7 +112,7 @@ if  [ "$thirdparty" == "y" ]; then
     dirlist="$dirlist thirdparty"
 fi
 
-#Basic logfile headers
+# Basic logfile headers.
 echo "Date: $(date)" > $logfile
 echo "Test set: $testset" >> $logfile
 echo "Kernel: $kver" >> $logfile
@@ -121,7 +122,7 @@ echo "============================================================" >>$logfile
 
 
 
-#Start running tests
+# Start running tests.
 echo "Test suite called with $testset"
 
 for dir in $dirlist
@@ -130,7 +131,7 @@ do
 	do
 		testdir=$(dirname $test)
 		pushd $testdir &>/dev/null
-		#TO DO:  purpose file test name format
+		#TO DO:  Purpose file test name format.
 		testname=$testdir
 		echo "Starting test $testname" >> $logfile
 
@@ -178,20 +179,20 @@ do
 	done
 done
 
-# Fix up logfile headers
+# Fix up logfile headers.
 sed -i "s,RESULTHOLDER,$cleanrun\nFailed Tests: $failedtests\nWarned Tests: $warntests,g" $logfile
 printf "\n%-65s%-8s\n" "Test suite complete" "$cleanrun"
 
 if [ "$commit" == "y" ]; then
-	printf "\nYour log file is being submitted\n"
+	printf "\nYour log file is being submitted...\n"
 	$commithook
 else
 	printf "\nYour log file is located at: $logfile\n"
 	printf "Submit your results to: https://apps.fedoraproject.org/kerneltest/\n"
 fi
 
-echo "The following information is not submitted with your log"
-echo "it is for informational purposes only"
+echo "The following information is not submitted with your log;"
+echo "it is for informational purposes only."
 
 if [ -f /usr/bin/pesign ]; then
 	echo "Checking for kernel signature:"
@@ -206,3 +207,4 @@ if [ "$cleanrun" == "FAIL" ]; then
 else
 	exit 0
 fi
+

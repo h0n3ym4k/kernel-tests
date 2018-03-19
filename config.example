@@ -1,28 +1,30 @@
 # Fedora Result Submit Method
-# Default is no submit.  Other options are 'anonymous' where we get results
-# without requiring FAS authentication, or 'authenticated' which will use
-# FAS authentication to upload and give you credit towards Fedora Badges.
+# The default behavior is to run the tests without submitting them.
+# Other options are 'anonymous',  where the results are submitted
+# without FAS authentication, or 'authenticated' which will use FAS
+# authentication to upload your results and give you credit towards
+# Fedora Badges :)
 
 submit=none
 # submit=anonymous
 # submit=authenticated
 
 # Check duplication tests
-# disable_retest=y
+#disable_retest=y
 
 # Check Signature for Secure Boot
-# checksig=y
-# validsig="Fedora Secure Boot Signer"
+#checksig=y
+#validsig="Fedora Secure Boot Signer"
 
 # Test 3rd Party Modules
-# thirdparty=y
+#thirdparty=y
 
 # FAS User credentials.
-# Storing your FAS password here is technically possible, but not advisable
-# for security seasons
+# Storing your FAS password here is technically possible, but is not
+# advisable for security reasons.
 
-# username=''
-# password=''
+#username=''
+#password=''
 
 # **************** Nothing to edit below here ****************
 
@@ -44,3 +46,4 @@ authenticated)
 *)
 	commithook=/usr/bin/true
 esac
+
