@@ -10,6 +10,12 @@ if [ "$is_root" -ne "0" ]; then
 	exit 3
 fi
 
+keyctl &>/dev/null
+if [ "$?" -eq "127" ]; then
+	echo "keyutils must be installed for this test."
+	exit 3
+fi
+
 # Run
 ./modsign_tests.sh
 result=$?
