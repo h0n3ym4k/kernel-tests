@@ -1,11 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Licensed under the terms of the GNU GPL License version 2
 
-from __future__ import print_function
-from fedora.client import OpenIdBaseClient
+import getopt
 import getpass
-import sys, getopt
+import sys
+
+from fedora.client import OpenIdBaseClient
 
 username = ''
 password = ''
@@ -53,3 +54,4 @@ req = submitclient.send_request(
 )
  
 print(req.message)
+

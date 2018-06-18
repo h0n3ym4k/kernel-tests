@@ -1,115 +1,152 @@
-=== Introduction ===
+Fedora Kernel Regression Tests
+==============================
+
+# Introduction
+
 This test suite is designed to look for regressions in the running kernel. It
-is maintained by Justin Forbes and the Fedora kernel team.  Any issues or
-enhancements should be sent to the Fedora kernel list:
-kernel@lists.fedoraproject.org
-While Fedora runs this test suite on every kernel it builds, hardware can 
-vary significantly. Anyone running this suite and submitting results will
-only give us better test coverage.  You can set up basic result submission
-and secure boot signature checking in '.config'. The 'config.example' file
-is a great place to start.
+is maintained by Justin Forbes and the Fedora kernel team.
 
-=== Running Tests ===
+Any issues or enhancements should be sent to the Fedora kernel list,
+`kernel@lists.fedoraproject.org`, or posted as issues against this project's
+repo at `https://pagure.io/kernel-tests/issues`.
 
-In the simplest of terms, simply run the runtests.sh script with no arguments.
-This will run the default tests, which include all tests in the minimal and
-default directories.  Right now the only supported arg is -t <testset> which
-will specify a different test set to run. Valid test sets are:
+While Fedora runs this test suite on every kernel it builds, hardware can vary
+significantly. Anyone running this suite and submitting results will only give
+us better test coverage. You can set up basic result submission and secure boot
+signature checking in `.config`. The `config.example` file is a great place to
+start.
 
-minimal - only runs tests in the minimal directory
-default - runs tests in both minimal and default
-stress - runs tests in minimal, default, and stress
-destructive - runs tests in minimal, default, and destructive
-performance - runs tests only in the performance directory
 
-If you choose destructive it will ask if you are sure.  If you say no, it will
-run default instead.  More descriptive output should be in the logfile, in the
-logs directory.
+# Running Tests
 
-It is expected that a basic set of packages are installed to run these tests.
-This includes glibc-devel and gcc.  If those packages are not installed, please
-install them before running the test suite.
+In the simplest of terms, run the `runtests.sh` script with no arguments. This
+will run the default tests, which include all tests in the **minimal** and
+**default** directories. Right now the only supported argument is
+`-t <test set>` which will specify a different test set to run. Valid test sets
+are:
+
+* **minimal** - only run tests in the `minimal` directory
+* **default** - run tests in the `minimal` and `default` directories
+* **stress** - run tests in the `minimal`, `default`, and `stress` directories
+* **destructive** - run tests in the `minimal`, `default`, and `destructive` directories
+* **performance** - run tests only in the `performance` directory
+
+If you choose **destructive** it will ask if you are sure. If you say no, it
+will run default instead. More descriptive output should be in the log file, in
+the `logs` directory.
+
+The dependencies for these tests are:
+* `gcc`
+* `glibc-devel`
+* `libtirpc`
+* `libtirpc-devel`
+
+If you would like to submit your results, then `python3-fedora` is also
+required.
 
 If you wish to test to ensure that 3rd party modules build against the current
-kernel, you can add a 'thirdparty=y' line to your .config.  This will run any
-tests in the thirdparty directory as well. Because these are not upstream
-drivers, a failure of these tests will return 4, the test suite will pass but
+kernel, you can add a `thirdparty=y` line to your .config. This will run any
+tests in the `thirdparty` directory as well. Because these are not upstream
+drivers, a failure of these tests will return 4 and the test suite will pass
 with warning.
 
-=== Writing Tests ===
 
-While a test can actually be any sort of executable, it is expected that
-these tests will follow certain basic criteria.  This helps to ensure that
-the test suite is easy to interpret.  The output is controlled by the
-master script, and output is in the form of pass, fail, warn, or skipped.
-All other output is redirected to the log file.
+# Writing Tests
 
-Return Codes:
-0 - A successful test completion
-3 - Test skipped 
-4 - Warn (this is reserved for things like out of tree modules)
-Anything else is interpreted as fail and the user is asked to check the log
-for more details.
+While a test can actually be any sort of executable, it is expected that these
+tests will follow certain basic criteria. This helps to ensure that the test
+suite is easy to interpret. The output is controlled by the master script, and
+output is in the form of `PASS`, `FAIL`, `WARN`, or `SKIP`. All other output is
+redirected to the log file.
 
-Clean up:
-Each test should clean up after itself.  Residue from a test should never
-impact any other test.  If you are creating something, destroy it when you
-finish.
+## Return Codes
 
-Directory Structure:
-Each test should be contained in a unique directory within the appropriate
-top level.  The directory must contain an executable 'runtest.sh' which will
-drive the specific test.  There is no guarantee on the order of execution.
-Each test should be fully independent, and have no dependency on other tests.
-The top level directories are reflective of how the master test suite is called.
-Each option is a super-set of the options before it.  At this time we have:
+* 0 - Successful test completion
+* 3 - Test skipped 
+* 4 - Warn (this is reserved for things like out of tree modules)
 
-minimal: This directory should include small, fast, and important tests
-which would should be run on every system.
+Anything else is interpreted as a failure and the user is asked to check the
+log for more details.
 
-default: This directory will include most tests which are not destructive,
-or particularly long to run.  When a user runs with no flags, all tests in
-both default and minimal will be run.
+## Clean Up
 
-stress: This directory will include longer running and more resource intensive
-tests which a user might not want to run in the common case due to time or
-resource constraints.
+Each test should clean up after itself. Residue from a test should never impact
+any other test. If you create something, destroy it when you are finished.
 
-destructive: This directory contains tests which have a higher probability of
-causing harm to a system even in the pass case.  This would include things 
-like potential for data loss.
+## Directory Structure
 
-performance: This directory contains tests aimed at performance regressions.
-Tests in this directory may take considerably longer to complete.
+Each test should be contained in a unique directory within the appropriate top
+level. The directory must contain an executable `runtest.sh` which will drive
+the specific test. There is no guarantee on the order of execution. Each test
+should be fully independent, and have no dependency on other tests. The top
+level directories are reflective of how the master test suite is called. Each
+option is a super-set of the options before it.
 
-Test Execution:
-Each test is executed by the control script by calling runtest.sh.  stdout
-and stderr are both redirected to the log.  Any user running with default
-flags should see nothing but the name of the directory and pass/fail/skip.
-The runtest.sh should manage the full test run.  This includes compiling 
-any necessary source, checking for any specific dependencies, and skipping
-if they are not met. At the completion of the test set, a "Test suite complete"
-is printed with a pass/fail result, and the appropriate return code.
+The subsections below describe the current test set directories.
 
-Potential for harm:
-It is expected that these test will be run on real systems.  Any tests
-which have increased risk of data loss or ill effects should be specified
-destructive, and placed in the destructive directory. Users wishing to run
-the full destructive test run are prompted loudly before it continues. The
-last thing we want to do is make ordinary users afraid to run the test
+### minimal
+
+This directory should include small, fast, and important tests which would
+should be run on every system.
+
+### default
+
+This directory will include most tests which are not destructive, or take a
+particularly long time to run. When a user runs with no flags, all tests in
+both **default** and **minimal** will be run.
+
+### stress
+
+This directory will include longer running and more resource intensive tests
+which a user might not want to run in the common case due to time or resource
+constraints.
+
+### destructive
+
+This directory contains tests which have a higher probability of causing harm
+to a system even in the pass case. This would include things like potential for
+data loss.
+
+### performance
+
+This directory contains tests aimed at performance regressions. Tests in this
+directory may take considerably longer to complete.
+
+## Test Execution
+
+Each test is executed by the control script by calling `runtest.sh`. Both
+`stdout` and `stderr` are both redirected to the log. Any user running with
+default flags should see nothing but the name of the directory and
+`PASS`/`FAIL`/`SKIP`. Each `runtest.sh` script should manage the full test run.
+This includes compiling any necessary source, checking for any specific
+dependencies, and skipping if they are not met. At the completion of the test
+set, `Test suite complete` is printed with a `PASS`/`FAIL` result, and the
+appropriate return code.
+
+## Potential for Harm
+
+It is expected that these test will be run on real systems. Any tests which
+have increased risk of data loss or ill effects should be specified
+**destructive**, and placed in the **destructive** directory. Users wishing to
+run the full **destructive** test run are prompted loudly before it continues.
+The last thing we want to do is make ordinary users afraid to run the test
 suite.
 
-Utility:
+
+# Utility
+
 As a large number of tests are written as simple shell scripts, and many of
 these tests need to perform a series of the same functions, a "library" has
-been created to allow for reuse. source the testutil file as needed.  Any
-functions added to testutil should be clearly commented with purpose and use.
+been created to allow for code reuse. Source the `testutil` file as needed. Any
+functions added to `testutil` should be clearly commented with purpose and use.
 
-Thirdparty:
-This directory should contain tests for out of tree drivers etc. These tests
-should never return anything other than pass, skip, or warn.  While it is
+
+# Third Party
+
+This directory should contain tests for out of tree drivers, etc. These tests
+should never return anything other than `PASS`, `SKIP`, or `WARN`. While it is
 handy to know if these things work with the current kernel, as out of tree
-modules, they are not necessarily in-step with upstream development.  To
-return a fail on these tests would be incorrect, but a warn does give a heads
-up so that the upstream for those modules can be contacted.
+modules, they are not necessarily in-step with upstream development. To return
+a `FAIL` on these tests would be incorrect, but a warn does give a heads up so
+that the upstream for those modules can be contacted. 
 
