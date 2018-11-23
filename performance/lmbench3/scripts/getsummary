@@ -1,3 +1,4 @@
+
 # Generate an ascii summary from lmbench result files.
 # Usage: getsummary file file file...
 #
