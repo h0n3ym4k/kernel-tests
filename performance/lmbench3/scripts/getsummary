@@ -1,4 +1,3 @@
-
 # Generate an ascii summary from lmbench result files.
 # Usage: getsummary file file file...
 #
@@ -339,7 +338,7 @@ foreach $file (@ARGV) {
 			    	last if /^\s*$/;
 			}
 		}
-		if (/size=64/) {
+		if ($_ && /size=64/) {
 			while (<FD>) {
 				if (/^2 /) {
 					@_ = split; push(@lat_ctx64_2, $_[1]);
@@ -941,7 +940,7 @@ sub resultsq
 	for ($i = $low; $i <= $high; $i++) {
 		foreach $p (@pars) {
 			$val = eval '$' . $p . '[' . $i . ']';
-			if ($val > 0) {
+			if ($val && $val > 0) {
 				return (1);
 			}
 		}
