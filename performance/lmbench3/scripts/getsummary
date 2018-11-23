@@ -351,13 +351,13 @@ foreach $file (@ARGV) {
 			    	last if /^\s*$/ || /^20/;
 			}
 		}
-		if (/^Memory load latency/) {
+		if ($_ && /^Memory load latency/) {
 			$lat_mem_rd_type = 1;
 		}
-		if (/^Random load latency/) {
+		if ($_ && /^Random load latency/) {
 			$lat_mem_rd_type = 2;
 		}
-		if (/^"stride=128/) {
+		if ($_ && /^"stride=128/) {
 			$save = -1;
 			while (<FD>) {
 				if (/^\s*$/) {
@@ -379,7 +379,7 @@ foreach $file (@ARGV) {
 				push(@lat_mem, $save);
 			}
 		}
-		if (/^"stride=16/) {
+		if ($_ && /^"stride=16/) {
 			$save = -1;
 			while (<FD>) {
 				if (/^\s*$/) {
