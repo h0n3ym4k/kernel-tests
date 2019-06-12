@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+
+import argparse
+import subprocess
+import json
+import os
+import sys
+import time
+
+from openidc_client import OpenIDCClient, requestsauth
+import requests
+
+BASE_URL = "https://apps.fedoraproject.org/kerneltest"
+ID_PROVIDER = "https://id.fedoraproject.org/openidc/"
+APP_IDENTIFIER = "kerneltest"
+SCOPES = [
+    "openid",
+    "https://github.com/jmflinuxtx/kerneltest-harness/oidc/upload_test_run",
+]
+ID_PROVIDER_MAPPING = {
+    "Authorization": "Authorization",
+    "Token": "Token",
+    "UserInfo": "UserInfo",
+}
+CLIENT_ID = "kerneltest"
+CLIENT_SECRET = "notsecret"
+CACHEDIR = "~/.cache/kerneltest"
+
+
+def upload_results(results, anonymous=False):
+    client = OpenIDCClient(
+        APP_IDENTIFIER,
+        ID_PROVIDER,
+        ID_PROVIDER_MAPPING,
+        CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        cachedir=CACHEDIR,
+    )
+    auth = None if anonymous else requestsauth.OpenIDCClientAuther(client, SCOPES)
+    response = requests.post(BASE_URL + "/api/v1/results/", auth=auth, json=results)
+    if response.status_code != 201:
+        print(response.status_code)
+        print(response.text)
+
+
+parser = argparse.ArgumentParser(description="Run and submit kernel tests")
+parser.add_argument("--logfile", help="The log file from a previous test run")
+parser.add_argument(
+    "--upload", action="store_true", help="Upload the results to Fedora's servers"
+)
+parser.add_argument(
+    "--anonymous", action="store_true", help="Upload the results anonymously"
+)
+parser.add_argument(
+    "--minimal", action="store_true", help="Run only the minimal test suite"
+)
+parser.add_argument("--stress", action="store_true", help="Run the stress test suite")
+parser.add_argument(
+    "--performance", action="store_true", help="Run the performance test suite"
+)
+parser.add_argument(
+    "--destructive", action="store_true", help="Run the destructive test suite"
+)
+parser.add_argument(
+    "--thirdparty", action="store_true", help="Run the third-party test suite"
+)
+parser.add_argument(
+    "--secureboot", action="store_true", help="Check the Secure Boot signature"
+)
+parser.add_argument("--disable-retest", help="Disable re-testing.")
+args = parser.parse_args()
+
+
+if args.logfile:
+    with open(args.logfile) as fd:
+        results = json.load(fd)
+    try:
+        upload_results(results, args.anonymous)
+        sys.exit(0)
+    except Exception:
+        sys.exit(1)
+
+encoding = sys.getdefaultencoding()
+
+result = subprocess.run(["uname", "-r"], encoding=encoding, capture_output=True)
+rpm_version = result.stdout.strip()
+kernel_version, release_and_arch = rpm_version.split("-")
+build_release, arch = release_and_arch.rsplit(".", 1)
+with open("/etc/os-release") as fd:
+    for line in fd.readlines():
+        if line.startswith("VERSION_ID="):
+            fedora_version = int(line.split("=")[1])
+            break
+    else:
+        raise Exception("No VERSION_ID found in /etc/os-release")
+
+test_results = {
+    "kernel_version": kernel_version,
+    "build_release": build_release,
+    "arch": arch,
+    "fedora_version": fedora_version,
+    "tests": [],
+}
+
+
+directories = ["minimal", "default"]
+if args.minimal:
+    directories = ["minimal"]
+if args.destructive:
+    directories.append("destructive")
+if args.performance:
+    directories.append("performance")
+if args.secureboot:
+    directories.append("secureboot")
+if args.stress:
+    directories.append("stress")
+if args.thirdparty:
+    directories.append("thirdparty")
+if args.stress:
+    directories.append("stress")
+
+# run test, check return code
+# 0 = pass
+# 3 = skip
+# 4 - warn
+# anything else is fail
+root_dir = os.getcwd()
+for directory in directories:
+    for dirpath, dirnames, filenames in os.walk(directory):
+        if "runtest.sh" in filenames:
+            os.chdir(dirpath)
+            print("Running " + dirpath)
+            result = subprocess.run(
+                ["./runtest.sh"], encoding=encoding, shell=True, capture_output=True
+            )
+            os.chdir(root_dir)
+            test_results["tests"].append(
+                {
+                    "name": dirpath,
+                    "passed": result.returncode == 0,
+                    "waived": result.returncode == 3,
+                    "details": result.stdout,
+                }
+            )
+
+logdir = os.path.join(root_dir, "logs", str(fedora_version), rpm_version)
+logfile = os.path.join(
+    logdir, "{suite}-{date}.log".format(suite="-".join(directories), date=time.time())
+)
+
+os.makedirs(logdir, exist_ok=True)
+with open(logfile, "w") as fd:
+    json.dump(test_results, fd, sort_keys=True, indent=4)
+
+if args.upload:
+    try:
+        upload_results(test_results, args.anonymous)
+    except Exception as e:
+        print("Failed to upload results: " + str(e))
+
+print("Your log file is located at: " + logfile)
+print("Submit your results to: https://apps.fedoraproject.org/kerneltest/")
+
+print("The following information is not submitted with your log;")
+print("it is for informational purposes only.")
+
+if os.path.exists("/usr/bin/pesign"):
+    sign_result = subprocess.run(
+        ["pesign", "-i", "/boot/vmlinuz-{}".format(rpm_version), "-S"]
+    )
+    print(sign_result)
+
+print("Vulnerability status:")
+vulns = "/sys/devices/system/cpu/vulnerabilities/"
+for vuln in os.listdir(vulns):
+    with open(os.path.join(vulns, vuln)) as fd:
+        print("{}: {}".format(vuln, fd.read().strip()))
+
+
+if all([test["passed"] for test in test_results["tests"]]):
+    sys.exit(0)
+else:
+    sys.exit(1)
