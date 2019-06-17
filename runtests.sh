@@ -200,8 +200,10 @@ if [ -f /usr/bin/pesign ]; then
 	/usr/bin/pesign -i /boot/vmlinuz-$kver -S | grep "common name"
 fi
 
-echo "Vulnerability status:"
-grep . /sys/devices/system/cpu/vulnerabilities/*
+if [ -d /sys/devices/system/cpu/vulnerabilities/ ]; then
+	echo "Vulnerability status:"
+	grep . /sys/devices/system/cpu/vulnerabilities/*
+fi
 
 if [ "$cleanrun" == "FAIL" ]; then
 	exit 1
