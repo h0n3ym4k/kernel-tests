@@ -2,6 +2,9 @@
 #
 # Licensed under the terms of the GNU GPL License version 2
 
+# Skip by default for now, things need updating
+exit 3
+
 check_kill()
 {
 	str="$*"
