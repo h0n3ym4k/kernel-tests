@@ -43,7 +43,8 @@ function free_pagecache()
 
 	sync
 	echo 1 > ${TUNE_FILE}
-	verify_tune_value ${TUNE_FILE} 1
+	# /proc/sys/vm/drop_caches is write only now
+	# verify_tune_value ${TUNE_FILE} 1
 
 	sleep 1
 	new_pagecache=`vmstat | awk '{print $6}'| sed -n '3p'`
@@ -67,7 +68,8 @@ function free_dentries_inodes()
 	
 	sync
 	echo 2 > ${TUNE_FILE}
-	verify_tune_value ${TUNE_FILE} 2
+	# /proc/sys/vm/drop_caches is write only now
+	# verify_tune_value ${TUNE_FILE} 2
 	sleep 2
 
 	new_cache=`vmstat | awk '{print $6}'| sed -n '3p'`
@@ -93,7 +95,8 @@ function free_pagecache_dentries_inodes()
 
 	sync
 	echo 3 > ${TUNE_FILE}
-	verify_tune_value ${TUNE_FILE} 3
+	# /proc/sys/vm/drop_caches is write only now
+	# verify_tune_value ${TUNE_FILE} 3
 	sleep 1
 	
 	new_cache=`vmstat | awk '{print $6}'| sed -n '3p'`
