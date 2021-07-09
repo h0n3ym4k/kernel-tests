@@ -12,6 +12,17 @@ if [ "$is_root" -ne "0" ]; then
         exit 3
 fi
 
+#VirtualBox syncs time with the host and makes this test fail
+if [ ! -f /usr/sbin/dmidecode ]; then
+	echo "dmidecode was not installed, skipping."
+	exit 3
+fi
+dmi=$(LANG=C /usr/sbin/dmidecode 2>&1)
+if echo "$dmi" | grep -q 'Manufacturer: innotek GmbH'; then
+	echo "This test does not work on Virtualbox guests"
+	exit 3
+fi
+
 # build the test source (upstream is git://github.com/johnstultz-work/timetests.git)
 if [ ! -f ./leap-a-day ]; then
 	gcc -o leap-a-day leap-a-day.c
