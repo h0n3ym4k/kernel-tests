@@ -189,7 +189,7 @@ if [ "$commit" == "y" ]; then
 	$commithook
 else
 	printf "\nYour log file is located at: $logfile\n"
-	printf "Submit your results to: https://apps.fedoraproject.org/kerneltest/\n"
+	printf "Submit your results to: https://kerneltest.fedoraproject.org/\n"
 fi
 
 echo "The following information is not submitted with your log;"
