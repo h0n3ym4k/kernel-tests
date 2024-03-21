@@ -31,7 +31,7 @@ submit=none
 case $submit in
 anonymous)
 	commit=y
-	commithook="curl -H 'Expect:' -F "user=anonymous" -F "test_result=@$logfile\;type=text/x-log" https://apps.fedoraproject.org/kerneltest/upload/anonymous"
+	commithook="curl -H 'Expect:' -F "user=anonymous" -F "test_result=@$logfile" https://kerneltest.fedoraproject.org/upload/anonymous"
 	;;
 authenticated)
 	commit=y
