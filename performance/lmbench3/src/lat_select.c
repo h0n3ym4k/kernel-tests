@@ -164,7 +164,7 @@ doit(iter_t iterations, void * cookie)
 	state_t * 	state = (state_t *)cookie;
 	fd_set		nosave;
 	static struct timeval tv;
-	static count = 0;
+	static uint64 count = 0;
 	
 	tv.tv_sec = 0;
 	tv.tv_usec = 0;

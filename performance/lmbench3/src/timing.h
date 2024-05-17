@@ -49,4 +49,6 @@ long	bread(void* src, long count);
 int	getpagesize();
 #endif
 
+void lmbench_usage(int argc, char *argv[], char* usage);
+
 #endif /* _TIMING_H */
