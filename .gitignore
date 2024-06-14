@@ -2,3 +2,5 @@
 logs
 *.sw?
 .config
+performance/lmbench3/bin/*
+performance/lmbench3/results/*
