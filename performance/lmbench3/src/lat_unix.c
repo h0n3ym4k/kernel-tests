@@ -13,6 +13,8 @@
 char	*id = "$Id$\n";
 #include "bench.h"
 
+#include <stdlib.h>
+
 struct _state {
 	int	sv[2];
 	int	pid;
@@ -71,7 +73,7 @@ void
 initialize(iter_t iterations, void* cookie)
 {
 	struct _state* pState = (struct _state*)cookie;
-	void	exit();
+	//void	exit();
 
 	if (iterations) return;
 

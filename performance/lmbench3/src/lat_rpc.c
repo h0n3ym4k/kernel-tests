@@ -246,7 +246,7 @@ xact_prog_1(rqstp, transp)
 	} argument;
 	char *result;
 	bool_t (*xdr_argument)(), (*xdr_result)();
-	char *(*local)();
+	char *(*local)(void *, void *);
 
 	switch (rqstp->rq_proc) {
 	case NULLPROC:
@@ -256,7 +256,7 @@ xact_prog_1(rqstp, transp)
 	case RPC_XACT:
 		xdr_argument = xdr_char;
 		xdr_result = xdr_char;
-		local = (char *(*)()) rpc_xact_1;
+		local = (char *(*)(void *, void *)) rpc_xact_1;
 		break;
 
 	case RPC_EXIT:

@@ -317,7 +317,7 @@ extern int handle_scheduler(int childno, int benchproc, int nbenchprocs);
 #define XACT_VERS ((u_long)1)
 #define RPC_XACT ((u_long)1)
 #define RPC_EXIT ((u_long)2)
-extern char *rpc_xact_1();
-extern char *client_rpc_xact_1();
+extern char *rpc_xact_1(char *msg, SVCXPRT *transp);
+extern char *client_rpc_xact_1(char *argp, CLIENT *clnt);
 
 #endif /* _BENCH_H */
